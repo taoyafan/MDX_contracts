@@ -1,8 +1,8 @@
 const WBNB = artifacts.require("WBNB");
-const USDT = artifacts.require("USDT");
+const USDT = artifacts.require("BEP20Token");
 
 const MdexRouter = artifacts.require("MdexRouter");
-const MdexERC20 = artifacts.require("MdexERC20");
+const MdxToken = artifacts.require("MdxToken");
 const MdexPair = artifacts.require("MdexPair");
 const MdexFactory = artifacts.require("MdexFactory");
 const SwapMining = artifacts.require("SwapMining");
@@ -10,9 +10,10 @@ const MdexOracleLibrary = artifacts.require("MdexOracleLibrary");
 const Oracle = artifacts.require("Oracle");
 const BSCPool = artifacts.require("BSCPool");
 
-module.exports = function (deployer, accounts) {
+const BigNumber = require("bignumber.js");
 
-    deployer.deploy(MdexERC20)      // Mdex Token
+module.exports = function (deployer, network, accounts) {
+    deployer.deploy(MdxToken)      // Mdex Token
     .then(function() {
         return deployer.deploy(
             MdexFactory,            // Factory, @todo neet to create MdexPair
@@ -45,18 +46,20 @@ module.exports = function (deployer, accounts) {
     .then(function() {
         return deployer.deploy(
             SwapMining,             // SwapMining
-            MdexERC20.address,
+            MdxToken.address,
+            MdexFactory.address,
             Oracle.address,
             MdexRouter.address,
             USDT.address,
-            1e19,   //_mdxPerBlock,
+            BigNumber(1e19),   //_mdxPerBlock,
             0       // startBlock
         );
     })
     .then(function() {
         return deployer.deploy(
             BSCPool,                // BSCPool
-            1e19,                   //_mdxPerBlock,
+            MdxToken.address,
+            BigNumber(1e19),        //_mdxPerBlock,
             0                       // startBlock
         );
     });
