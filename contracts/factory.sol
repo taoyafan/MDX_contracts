@@ -1,9 +1,5 @@
-/**
- *Submitted for verification at BscScan.com on 2021-04-06
-*/
-
 // SPDX-License-Identifier: MIT
-
+// address: 0x3CD1C46068dAEa5Ebb0d3f55F6915B10648062B8
 pragma solidity >=0.5.0 <0.8.0;
 
 interface IMdexFactory {
@@ -638,17 +634,17 @@ library EnumerableSet {
 contract MdexERC20 is IMdexERC20 {
     using SafeMath for uint;
 
-    string public constant name = 'MDEX LP Token';
-    string public constant symbol = 'MDEX LP';
-    uint8 public constant decimals = 18;
-    uint  public totalSupply;
-    mapping(address => uint) public balanceOf;
-    mapping(address => mapping(address => uint)) public allowance;
+    string public constant override name = 'MDEX LP Token';
+    string public constant override symbol = 'MDEX LP';
+    uint8 public constant override decimals = 18;
+    uint  public override totalSupply;
+    mapping(address => uint) public override balanceOf;
+    mapping(address => mapping(address => uint)) public override allowance;
 
-    bytes32 public DOMAIN_SEPARATOR;
+    bytes32 public override DOMAIN_SEPARATOR;
     // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
-    bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
-    mapping(address => uint) public nonces;
+    bytes32 public constant override PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+    mapping(address => uint) public override nonces;
 
     event Approval(address indexed owner, address indexed spender, uint value);
     event Transfer(address indexed from, address indexed to, uint value);
@@ -656,7 +652,7 @@ contract MdexERC20 is IMdexERC20 {
     constructor() public {
         uint chainId;
         assembly {
-            chainId := chainid
+            chainId := chainid()
         }
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
@@ -692,17 +688,17 @@ contract MdexERC20 is IMdexERC20 {
         emit Transfer(from, to, value);
     }
 
-    function approve(address spender, uint value) external returns (bool) {
+    function approve(address spender, uint value) external override returns (bool) {
         _approve(msg.sender, spender, value);
         return true;
     }
 
-    function transfer(address to, uint value) external returns (bool) {
+    function transfer(address to, uint value) external override returns (bool) {
         _transfer(msg.sender, to, value);
         return true;
     }
 
-    function transferFrom(address from, address to, uint value) external returns (bool) {
+    function transferFrom(address from, address to, uint value) external override returns (bool) {
         if (allowance[from][msg.sender] != uint(- 1)) {
             allowance[from][msg.sender] = allowance[from][msg.sender].sub(value);
         }
@@ -710,7 +706,7 @@ contract MdexERC20 is IMdexERC20 {
         return true;
     }
 
-    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external {
+    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external override {
         require(deadline >= block.timestamp, 'MdexSwap: EXPIRED');
         bytes32 digest = keccak256(
             abi.encodePacked(
@@ -725,7 +721,7 @@ contract MdexERC20 is IMdexERC20 {
     }
 }
 
-contract MdexPair is IMdexPair, MdexERC20 {
+contract MdexPair is MdexERC20 {
     using SafeMath  for uint;
     using UQ112x112 for uint224;
 
@@ -942,17 +938,17 @@ contract MdexFactory is IMdexFactory {
     using EnumerableSet for EnumerableSet.AddressSet;
     EnumerableSet.AddressSet private _supportList;
 
-    uint256 public constant FEE_RATE_DENOMINATOR = 1e4;
-    uint256 public feeRateNumerator = 30;
-    address public feeTo;
-    address public feeToSetter;
-    uint256 public feeToRate = 5;
-    bytes32 public initCodeHash;
+    uint256 public constant override FEE_RATE_DENOMINATOR = 1e4;
+    uint256 public override feeRateNumerator = 30;
+    address public override feeTo;
+    address public override feeToSetter;
+    uint256 public override feeToRate = 5;
+    bytes32 public override initCodeHash;
 
-    mapping(address => uint256) public pairFeeToRate;
-    mapping(address => uint256) public pairFees;
-    mapping(address => mapping(address => address)) public getPair;
-    address[] public allPairs;
+    mapping(address => uint256) public override pairFeeToRate;
+    mapping(address => uint256) public override pairFees;
+    mapping(address => mapping(address => address)) public override getPair;
+    address[] public override allPairs;
 
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
 
@@ -961,11 +957,11 @@ contract MdexFactory is IMdexFactory {
         initCodeHash = keccak256(abi.encodePacked(type(MdexPair).creationCode));
     }
 
-    function allPairsLength() external view returns (uint) {
+    function allPairsLength() external view override returns (uint) {
         return allPairs.length;
     }
 
-    function createPair(address tokenA, address tokenB) external returns (address pair) {
+    function createPair(address tokenA, address tokenB) external override returns (address pair) {
         require(tokenA != tokenB, 'MdexSwapFactory: IDENTICAL_ADDRESSES');
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'MdexSwapFactory: ZERO_ADDRESS');
@@ -984,72 +980,72 @@ contract MdexFactory is IMdexFactory {
         emit PairCreated(token0, token1, pair, allPairs.length);
     }
 
-    function setFeeTo(address _feeTo) external {
+    function setFeeTo(address _feeTo) external override {
         require(msg.sender == feeToSetter, 'MdexSwapFactory: FORBIDDEN');
         feeTo = _feeTo;
     }
 
-    function setFeeToSetter(address _feeToSetter) external {
+    function setFeeToSetter(address _feeToSetter) external override {
         require(msg.sender == feeToSetter, 'MdexSwapFactory: FORBIDDEN');
         require(_feeToSetter != address(0), "MdexSwapFactory: FeeToSetter is zero address");
         feeToSetter = _feeToSetter;
     }
 
-    function addPair(address pair) external returns (bool){
+    function addPair(address pair) external override returns (bool){
         require(msg.sender == feeToSetter, 'MdexSwapFactory: FORBIDDEN');
         require(pair != address(0), 'MdexSwapFactory: pair is the zero address');
         return EnumerableSet.add(_supportList, pair);
     }
 
-    function delPair(address pair) external returns (bool){
+    function delPair(address pair) external override returns (bool){
         require(msg.sender == feeToSetter, 'MdexSwapFactory: FORBIDDEN');
         require(pair != address(0), 'MdexSwapFactory: pair is the zero address');
         return EnumerableSet.remove(_supportList, pair);
     }
 
-    function getSupportListLength() public view returns (uint256) {
+    function getSupportListLength() public view override returns (uint256) {
         return EnumerableSet.length(_supportList);
     }
 
-    function isSupportPair(address pair) public view returns (bool){
+    function isSupportPair(address pair) public view override returns (bool){
         return EnumerableSet.contains(_supportList, pair);
     }
 
-    function getSupportPair(uint256 index) external view returns (address) {
+    function getSupportPair(uint256 index) external view override returns (address) {
         require(msg.sender == feeToSetter, 'MdexSwapFactory: FORBIDDEN');
         require(index <= getSupportListLength() - 1, "index out of bounds");
         return EnumerableSet.at(_supportList, index);
     }
 
     // Set default fee ，max is 0.003%
-    function setFeeRateNumerator(uint256 _feeRateNumerator) external {
+    function setFeeRateNumerator(uint256 _feeRateNumerator) external override {
         require(msg.sender == feeToSetter, 'MdexSwapFactory: FORBIDDEN');
         require(_feeRateNumerator <= 30, "MdexSwapFactory: EXCEEDS_FEE_RATE_DENOMINATOR");
         feeRateNumerator = _feeRateNumerator;
     }
 
     // Set pair fee , max is 0.003%
-    function setPairFees(address pair, uint256 fee) external {
+    function setPairFees(address pair, uint256 fee) external override {
         require(msg.sender == feeToSetter, 'MdexSwapFactory: FORBIDDEN');
         require(fee <= 30, 'MdexSwapFactory: EXCEEDS_FEE_RATE_DENOMINATOR');
         pairFees[pair] = fee;
     }
 
     // Set the default fee rate ，if set to 1/10 no handling fee
-    function setDefaultFeeToRate(uint256 rate) external {
+    function setDefaultFeeToRate(uint256 rate) external override {
         require(msg.sender == feeToSetter, 'MdexSwapFactory: FORBIDDEN');
         require(rate > 0 && rate <= 10, "MdexSwapFactory: FEE_TO_RATE_OVERFLOW");
         feeToRate = rate.sub(1);
     }
 
     // Set the commission rate of the pair ，if set to 1/10 no handling fee
-    function setPairFeeToRate(address pair, uint256 rate) external {
+    function setPairFeeToRate(address pair, uint256 rate) external override {
         require(msg.sender == feeToSetter, 'MdexSwapFactory: FORBIDDEN');
         require(rate > 0 && rate <= 10, "MdexSwapFactory: FEE_TO_RATE_OVERFLOW");
         pairFeeToRate[pair] = rate.sub(1);
     }
 
-    function getPairFees(address pair) public view returns (uint256){
+    function getPairFees(address pair) public view override returns (uint256){
         require(pair != address(0), 'MdexSwapFactory: pair is the zero address');
         if (isSupportPair(pair)) {
             return pairFees[pair];
@@ -1058,7 +1054,7 @@ contract MdexFactory is IMdexFactory {
         }
     }
 
-    function getPairRate(address pair) external view returns (uint256) {
+    function getPairRate(address pair) external view override returns (uint256) {
         require(pair != address(0), 'MdexSwapFactory: pair is the zero address');
         if (isSupportPair(pair)) {
             return pairFeeToRate[pair];
@@ -1068,14 +1064,14 @@ contract MdexFactory is IMdexFactory {
     }
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
-    function sortTokens(address tokenA, address tokenB) public pure returns (address token0, address token1) {
+    function sortTokens(address tokenA, address tokenB) public pure override returns (address token0, address token1) {
         require(tokenA != tokenB, 'MdexSwapFactory: IDENTICAL_ADDRESSES');
         (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'MdexSwapFactory: ZERO_ADDRESS');
     }
 
     // calculates the CREATE2 address for a pair without making any external calls
-    function pairFor(address tokenA, address tokenB) public view returns (address pair) {
+    function pairFor(address tokenA, address tokenB) public view override returns (address pair) {
         (address token0, address token1) = sortTokens(tokenA, tokenB);
         pair = address(uint(keccak256(abi.encodePacked(
                 hex'ff',
@@ -1084,23 +1080,23 @@ contract MdexFactory is IMdexFactory {
                 initCodeHash
             ))));
     }
-    
+
     // fetches and sorts the reserves for a pair
-    function getReserves(address tokenA, address tokenB) public view returns (uint reserveA, uint reserveB) {
+    function getReserves(address tokenA, address tokenB) public view override returns (uint reserveA, uint reserveB) {
         (address token0,) = sortTokens(tokenA, tokenB);
         (uint reserve0, uint reserve1,) = IMdexPair(pairFor(tokenA, tokenB)).getReserves();
         (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
     }
 
     // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
-    function quote(uint amountA, uint reserveA, uint reserveB) public pure returns (uint amountB) {
+    function quote(uint amountA, uint reserveA, uint reserveB) public pure override returns (uint amountB) {
         require(amountA > 0, 'MdexSwapFactory: INSUFFICIENT_AMOUNT');
         require(reserveA > 0 && reserveB > 0, 'MdexSwapFactory: INSUFFICIENT_LIQUIDITY');
         amountB = amountA.mul(reserveB) / reserveA;
     }
 
     // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
-    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut, address token0, address token1) public view returns (uint amountOut) {
+    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut, address token0, address token1) public view override returns (uint amountOut) {
         require(amountIn > 0, 'MdexSwapFactory: INSUFFICIENT_INPUT_AMOUNT');
         require(reserveIn > 0 && reserveOut > 0, 'MdexSwapFactory: INSUFFICIENT_LIQUIDITY');
         uint256 fee = getPairFees(pairFor(token0, token1));
@@ -1111,7 +1107,7 @@ contract MdexFactory is IMdexFactory {
     }
 
     // given an output amount of an asset and pair reserves, returns a required input amount of the other asset
-    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut, address token0, address token1) public view returns (uint amountIn) {
+    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut, address token0, address token1) public view override returns (uint amountIn) {
         require(amountOut > 0, 'MdexSwapFactory: INSUFFICIENT_OUTPUT_AMOUNT');
         require(reserveIn > 0 && reserveOut > 0, 'MdexSwapFactory: INSUFFICIENT_LIQUIDITY');
         uint256 fee = getPairFees(pairFor(token0, token1));
@@ -1121,7 +1117,7 @@ contract MdexFactory is IMdexFactory {
     }
     
     // performs chained getAmountOut calculations on any number of pairs
-    function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts) {
+    function getAmountsOut(uint amountIn, address[] memory path) public view override returns (uint[] memory amounts) {
         require(path.length >= 2, 'MdexSwapFactory: INVALID_PATH');
         amounts = new uint[](path.length);
         amounts[0] = amountIn;
@@ -1132,7 +1128,7 @@ contract MdexFactory is IMdexFactory {
     }
 
     // performs chained getAmountIn calculations on any number of pairs
-    function getAmountsIn(uint amountOut, address[] memory path) public view returns (uint[] memory amounts) {
+    function getAmountsIn(uint amountOut, address[] memory path) public view override returns (uint[] memory amounts) {
         require(path.length >= 2, 'MdexSwapFactory: INVALID_PATH');
         amounts = new uint[](path.length);
         amounts[amounts.length - 1] = amountOut;
