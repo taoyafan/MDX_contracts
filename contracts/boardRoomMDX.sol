@@ -1,5 +1,17 @@
 // SPDX-License-Identifier: MIT
-// Address: 0x6aEE12e5Eb987B3bE1BA8e621BE7C4804925bA68 Deposit MDX
+// Used to Deposit MDX to earn reward
+// Address: 0x6aEE12e5Eb987B3bE1BA8e621BE7C4804925bA68 
+
+// How to use:
+// (1) Approve: MdxToken.approve(address(0x6aee12e5eb987b3be1ba8e621be7c4804925ba68), uint256(-1));  
+//              approve address is this address.
+// (2) Deposit: deposit(4, amount);      // MDX pool id is 4
+// (3) Only withdraw rewards: deposit(4, 0);
+// (4) Withdraw both principal and rewards:  withdraw(4, principalAmount);
+
+// Check pending rewards amount: pending(4, userAddress);
+// Check user's principal amount: userInfo(4, userAddress);
+
 pragma solidity ^0.6.0;
 
 abstract contract Context {
@@ -894,7 +906,6 @@ contract BoardRoomMDX is Ownable {
         pool.lastRewardBlock = number;
     }
 
-
     function pending(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
@@ -914,13 +925,9 @@ contract BoardRoomMDX is Ownable {
         return user.amount.mul(accMDXPerShare).div(1e12).sub(user.rewardDebt);
     }
 
-
     // Deposit LP tokens dividends mdx;
     function deposit(uint256 _pid, uint256 _amount) public {
         require(!isBadAddress(msg.sender), 'Illegal, rejected ');
-        //        if (Address.isContract(msg.sender)) {
-        //            require(isWhiteListAddress(msg.sender), 'Illegal, rejected ');
-        //        }
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         updatePool(_pid);
