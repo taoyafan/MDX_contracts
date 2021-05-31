@@ -1,5 +1,5 @@
 const WBNB = artifacts.require("WBNB");
-const USDT = artifacts.require("BEP20Token");
+const BUSD = artifacts.require("BEP20Token");
 
 const MdexRouter = artifacts.require("MdexRouter");
 const MdxToken = artifacts.require("MdxToken");
@@ -40,7 +40,7 @@ module.exports = function (deployer, network, accounts) {
     })
     .then(function() {
         return deployer.deploy(
-            USDT,                   // USDT
+            BUSD,                   // BUSD
         );
     })
     .then(function() {
@@ -50,7 +50,7 @@ module.exports = function (deployer, network, accounts) {
             MdexFactory.address,
             Oracle.address,
             MdexRouter.address,
-            USDT.address,
+            BUSD.address,
             BigNumber(1e19),   //_mdxPerBlock,
             0       // startBlock
         );
